@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16
+    command: postgres -c 'max_connections=300'
+    restart: always
+    environment:
+      LANG: en_US.utf8
+      LC_ALL: en_US.utf8
+      JDK_JAVA_OPTIONS: '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8'
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    expose:
+      - 5432
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./events_input.sql:/opt/events_input.sql
+
+  jobmanager:
+    build:
+      context: ./flink
+      args:
+        - FLINK_VERSION=1.17.1
+    expose:
+      - "6123"
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  taskmanager:
+    build:
+      context: ./flink
+      args:
+        - FLINK_VERSION=1.17.1
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager

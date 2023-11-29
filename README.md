@@ -25,7 +25,6 @@ SET 'execution.runtime-mode' = 'batch';
 ```
 
 ```bash
-%%flink_execute_sql
 CREATE TABLE events (
   id INT,
   user_id INT,
@@ -43,7 +42,6 @@ CREATE TABLE events (
 ```
 
 ```bash
-%%flink_execute_sql
 SELECT *
 FROM events
     MATCH_RECOGNIZE (
